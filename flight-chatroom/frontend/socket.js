@@ -1,8 +1,7 @@
 import { io } from 'socket.io-client';
-const socket = io('http://localhost:3000', {
-    transports: ['websocket'],
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
-    reconnectionDelayMax: 5000,
+
+const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000', {
+  transports: ['websocket'],
 });
+
 export default socket;
