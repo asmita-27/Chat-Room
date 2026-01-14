@@ -1,13 +1,11 @@
-package com.example.chat_room_backend;
+package com.example.chat;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class ChatRoomBackendApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(ChatRoomBackendApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(ChatRoomBackendApplication.class, args);
+    }
 }
