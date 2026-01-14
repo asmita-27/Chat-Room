@@ -10,11 +10,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.chat.entity.User;
+import com.example.chat.repository.UserRepository;
 import com.example.chat.security.JwtUtil;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @PostMapping("/register")
+    public String register(@RequestParam String username, @RequestParam String password) {
+        if (userRepository.findByUsername(username).isPresent()) {
+            return "Username already exists";
+        }
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword("{noop}" + password); // For demo only! Use a password encoder for real apps.
+        userRepository.save(user);
+        return "User registered successfully";
+    }
 
     @Autowired
     private AuthenticationManager authenticationManager;
