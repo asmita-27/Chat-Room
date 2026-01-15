@@ -1,11 +1,18 @@
 package com.example.chat.controller;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,7 +54,34 @@ public class ChatController {
     }
 
     @GetMapping("/messages")
-    public List<ChatMessage> getMessages(@RequestParam UUID roomId) {
-        return chatMessageRepository.findByChatRoomId(roomId);
+    public ResponseEntity<List<ChatMessage>> getMessages(
+            @RequestParam UUID roomId,
+            @RequestParam(required = false) LocalDateTime since,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        ChatRoom room = chatRoomRepository.findById(roomId).orElseThrow();
+        boolean isMember = room.getMembers().stream().anyMatch(u -> u.getUsername().equals(username));
+        if (!isMember) {
+            return ResponseEntity.status(403).build();
+        }
+        if (size > 100) {
+            size = 100; // Safe query limit
+
+        }
+        Pageable pageable = PageRequest.of(page, size);
+        List<ChatMessage> messages;
+        if (since != null) {
+            messages = chatMessageRepository.findByChatRoomIdAndTimestampAfter(roomId, since, pageable);
+        } else {
+            messages = chatMessageRepository.findByChatRoomId(roomId, pageable);
+        }
+        return ResponseEntity.ok(messages);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleException(Exception ex) {
+        return ResponseEntity.status(400).body(ex.getMessage());
     }
 }

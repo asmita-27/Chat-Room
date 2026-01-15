@@ -5,9 +5,12 @@ import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 
 @Entity
 public class ChatMessage {
@@ -25,7 +28,30 @@ public class ChatMessage {
     @Column(nullable = false)
     private String content;
 
-    private LocalDateTime timestamp = LocalDateTime.now();
+    @Column(nullable = false)
+    private LocalDateTime timestamp;
+
+    public enum DeliveryState {
+        SENT,
+        DELIVERED,
+        READ
+    }
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private DeliveryState deliveryState = DeliveryState.SENT;
+
+    @Column
+    private LocalDateTime deliveredAt;
+
+    @Column
+    private LocalDateTime readAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.timestamp = LocalDateTime.now();
+        this.deliveryState = DeliveryState.SENT;
+    }
 
     public ChatMessage() {
     }
@@ -35,6 +61,7 @@ public class ChatMessage {
         this.sender = sender;
         this.content = content;
         this.timestamp = LocalDateTime.now();
+        this.deliveryState = DeliveryState.SENT;
     }
 
     public UUID getId() {
@@ -71,5 +98,29 @@ public class ChatMessage {
 
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public DeliveryState getDeliveryState() {
+        return deliveryState;
+    }
+
+    public void setDeliveryState(DeliveryState deliveryState) {
+        this.deliveryState = deliveryState;
+    }
+
+    public LocalDateTime getDeliveredAt() {
+        return deliveredAt;
+    }
+
+    public void setDeliveredAt(LocalDateTime deliveredAt) {
+        this.deliveredAt = deliveredAt;
+    }
+
+    public LocalDateTime getReadAt() {
+        return readAt;
+    }
+
+    public void setReadAt(LocalDateTime readAt) {
+        this.readAt = readAt;
     }
 }

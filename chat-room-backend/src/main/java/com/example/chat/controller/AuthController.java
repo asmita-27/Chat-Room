@@ -46,4 +46,9 @@ public class AuthController {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         return jwtUtil.generateToken(userDetails.getUsername());
     }
+
+    @PostMapping("/room")
+    public String room() {
+        return "http://localhost:8080/chat/room";
+    }
 }

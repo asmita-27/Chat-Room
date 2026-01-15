@@ -23,6 +23,17 @@ public class ChatRoom {
     @ManyToMany
     private Set<User> members = new HashSet<>();
 
+    @Column(nullable = false)
+    private String type = "GROUP";
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public ChatRoom() {
     }
 
